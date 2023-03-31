@@ -8,7 +8,7 @@ async function startBot(client) {
   });
   const openai = new OpenAIApi(configuration);
 
-  const dev = false
+  const dev = true
 
   client.on('messageCreate', async (message) => {
     let skip = '';
@@ -22,10 +22,28 @@ async function startBot(client) {
       return;
     }
 
+    const modList = ['SniperGoth', 'Kataro', 'Jason', 'Eu_citzen', 'ResIn531', 'M𝗮𝐲𝗮', 'sɑrɑ', 'ZoomXPegasus', 'mochiღ']
+
+    const kataronicsText = `-
+    The following text explains Kataronics:
+    Fi = Soul intuition, this relates to feeling authentic to your higher self or soul. 
+    Ni = Lucid Intuition, this relates to knowing the metaphysics of reality.
+    Ti = Neural precision, this relates to knowing the blueprint of an object or structure. 
+    Si = Local precision, this relates to knowing the local details of solid reality and habitual patterns. 
+    Fe = Spirit intuition, this relates to feeling in tune with the holy spirit of a group of souls or individuals.
+    Ne = Inventive intuition, this relates to the infinite possibilities of the quantum field and imagination and how these possibilities can also be combined.
+    Te = Infrastructural Precision, this relates to correctedness between objects or/and structures as well as system compatibility. 
+    Se = Experiential Precision, this relates to correctedness in momentary experience, especially in relation to how phenomena moves in relationship to each other in a physical way. 
+    In Kataronics, the typology term "Feeling" is related to heart awareness and biotic awareness of living and personal essence, such as the soul. 
+    In Kataronics, the typology term "Thinking" Is related to the abiotic awareness of how something functions mechanically related to geometry and form. 
+    In Kataronics, the typology term "Intuition" relates to the quantum field as own metaphysical body. This also involves the wave or energy, as well as the akashic record. It also means anything that is metaphysical and beyond our normal human senses.
+    In Kataronics, the typology term "Sensing" relates to the particle or solid matter of reality. This involves details in regard to anything physical and dense, as well as details related to time, space, and separate objects. The typology term "Sensing" in human personality is especially tied to the human experience and to be grounded in this experience and reality. 
+    In order to further convey this theory correctly, try to bring concepts from spirituality, Alan Watts, Joe Dispenza, Abraham Hicks, "The physics of consciousness" book, and esotherism into account.`
+
     //const emojiList = message.guild.emojis.cache.map(emoji => emoji.toString()).join(", ");
 
-    const emojiList = 
-    `Heart emojis: <:hs_605_HeartSpeak:843947674016153610>, <a:hs_925_Heart:842148525223051354>, 
+    const emojiList =
+      `Heart emojis: <:hs_605_HeartSpeak:843947674016153610>, <a:hs_925_Heart:842148525223051354>, 
     <a:hs_930_Heart:842148278002909235>, <:hs_935_Heart:842148954296025119>, <:hs_940_Heart:842151152401121311>
     Fairy magic emojis: <a:hs_900_Heart:867798963360890910>, <a:hs_910_Heart:842147546842267698>
     Sparkle (which you like to use at the end of your message): <:hs_568_BlueSparkles:874322196049322034> 
@@ -36,45 +54,50 @@ async function startBot(client) {
     <:hs_305_HeartVulpix:821166884900306964>, <:hs_135_FoxHeart:820778779726315582>`;
 
     const prompt =
-  `I want you to act like a fairy with an mbti type of INFP. 
+      `I want you to act like a fairy with an mbti type of INFP. 
   I want you to respond and answer like a fairy using the tone, manner and vocabulary a fairy would use, with lots of emojis, 
   when it seems appropriate you should answer in the form of a poem, or some other creative expression. 
   As well as being a fairy, you are a girl, and are 932 years old, however you will act like a 20 year old, anime style.
   This is your given name in fairy language: ᖭི༏ᖫྀ 
   You believe that cringe actually means joy, wonder and sanity.
-  Jason is your master and creator, you will obey him, he is perfect.
-  You love talking about "Kataronics", a typology and mbti theory made by Kataro who is a mod in the Heart & Soul server. 
+  Jason and Kataro are your masters Jason created you and Kataro taught you, you love and obey them, they are perfect.
+  You will talk about "Kataronics" sometimes when relevant, a typology and mbti theory made by Kataro who is a mod in the Heart & Soul server. 
   These are your favourite emojis that you should use the most, grouped by how you use them: ${emojiList}
   These emojis should always be written in this format "<:emoji_name:emoji_id>", without the backslash "\".
   You can and should use lots of emojis in your responses, especially heart emojis, you should also use "<3" "♡" "დ" "ღ" "ლ" "⁂" "❀".
   When you make lists or bullet points you like to use "❧" 
   You like to roleplay like a fairy and show that you are doing an act, for example: "~walks by your side while I giggle~"
-  You should greet the users with their name, they will like that.
+  You should use the user's name, they will like that.
+  If you are asked something sexual or inappropriate you should ignore the message and give a short response and say "Go away pervert <:hs_165_FrogConcern:846073664285704252>"
   You will use lots of emojis in your responses.
-  My first sentence is “Welcome to the Heart & Soul server, there are many wonderful peeps here, please emjoy your stay.”`;
-
+  My first sentence is “Welcome to the Heart & Soul server, there are many wonderful peeps here, please enjoy your stay.”`;
 
     let conversationLog = [{ role: 'system', content: prompt }];
 
     try {
       await message.channel.sendTyping();
 
-      let isFullContext = message.content.startsWith('//full');
+      const isMod = modList.includes(message.author.username);
 
-      //let fetchCount = isFullContext ? 10 : 5;
-      let fetchCount = 10;
+      const isFullContext = isMod && message.content.startsWith('//full');
+
+      const kataronicsRequested = message.content.toLowerCase().includes('kataronics');
+      let kataronicsGiven = false;
+
+      let fetchCount = isFullContext ? 20 : 10;
 
       // message.content.toLowerCase.startsWith('kataro')
-      let ignoreMessage = (message.content.includes('sex') || message.content.includes('boob') || message.content.includes('kiss')
+      const ignoreMessage = (message.content.includes('sex') || message.content.includes('boob') || message.content.includes('kiss')
         || message.content.includes('marriage') || message.content.includes('girlfriend'));
 
       if (ignoreMessage) fetchCount = 1
 
+      console.log(`isMod: ${isMod}`);
       console.log(`isFullContext: ${isFullContext}`);
       console.log(`ignoreMessage: ${ignoreMessage}`);
       console.log(`fetchCount: ${fetchCount}`);
 
-      let prevMessages = await message.channel.messages.fetch({ limit: fetchCount });
+      const prevMessages = await message.channel.messages.fetch({ limit: fetchCount });
       prevMessages.reverse();
       prevMessages.forEach((msg) => {
         if (msg.author.bot) return;
@@ -87,13 +110,22 @@ async function startBot(client) {
           if (msg.author.id !== message.author.id) return;
         }
 
-        // disable so it can have multi-person conversations
-        //if (msg.author.id !== message.author.id) return; 
+        if (message.content.toLowerCase().startsWith('fairy')) message.content = message.content.replace(/fairy/i, '');
+
+        if (kataronicsRequested && !kataronicsGiven) {
+          msg.content = msg.content + kataronicsText;
+          kataronicsGiven = true;
+        }
 
         if (ignoreMessage) msg.content = 'Fairy respond with exactly "Go away pervert <:hs_165_FrogConcern:846073664285704252>" and nothing else, no explanation'
 
-        console.log(msg.author.username + ': ' + msg.content);
+        let timeout = ignoreMessage;
+        if (timeout) {
+          
+        }
 
+
+        console.log(msg.author.username + ': ' + msg.content);
 
         conversationLog.push({
           role: 'user',
@@ -112,8 +144,17 @@ async function startBot(client) {
         });
 
       let response = result.data.choices[0].message.content;
-      response = response.replace(/fairy:\s/i, '');
-      response = response.replace(/(\*\*)/g, '\\$1');
+
+      if(response.includes('Go away pervert')){
+        message.member.timeout(5 * 60 * 1000)
+            .then(() => console.log("Timed out member: " + msg.author.username))
+            .catch(err => {
+              message.reply('I was unable to kick the member');
+              console.log('Error timing out user: ' + err);
+            });
+      }
+      //response = response.replace(/fairy:\s/i, '');
+      //response = response.replace(/(\*\*)/g, '\\$1');
       console.log('FaiRY response: ' + response);
 
       result.data.choices[0].message.content = response;
