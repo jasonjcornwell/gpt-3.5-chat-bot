@@ -2,6 +2,8 @@ require('dotenv/config');
 const { Client, IntentsBitField } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
 
+let shutdown = false;
+
 async function startBot(client) {
   const configuration = new Configuration({
     apiKey: process.env.API_KEY,
@@ -108,97 +110,84 @@ async function startBot(client) {
 
     let conversationLog = [{ role: 'system', content: prompt }];
 
-    try {
-      await message.channel.sendTyping();
+    await message.channel.sendTyping();
 
-      const isMod = modList.includes(message.author.username);
+    const isMod = modList.includes(message.author.username);
 
-      const isFullContext = isMod && message.content.startsWith('//full');
+    const isFullContext = isMod && message.content.startsWith('//full');
 
-      const kataronicsRequested = message.content.toLowerCase().includes('kataronics');
-      let kataronicsGiven = false;
+    const kataronicsRequested = message.content.toLowerCase().includes('kataronics');
+    let kataronicsGiven = false;
 
-      let fetchCount = isFullContext ? 20 : 10;
+    const ignoreMessage = (message.content.includes('sex') || message.content.includes('boob') || message.content.includes('kiss')
+      || message.content.includes('marriage') || message.content.includes('girlfriend'));
 
-      // message.content.toLowerCase.startsWith('kataro')
-      const ignoreMessage = (message.content.includes('sex') || message.content.includes('boob') || message.content.includes('kiss')
-        || message.content.includes('marriage') || message.content.includes('girlfriend'));
+    shutdown = isMod && message.content.startsWith('//restart');
 
-      
-      const restart = isMod && message.content.startsWith('//restart');
+    let fetchCount = 5;
+    if (ignoreMessage || shutdown) fetchCount = 1
 
-      if (ignoreMessage || restart) fetchCount = 1
+    console.log('Input type: ', isMod ? 'isMod ' : '', shutdown ? 'shutdown ' : '', isFullContext ? 'isFullContext ' : '', `fetchCount ${fetchCount}`);
 
-      console.log(`isMod: ${isMod}`);
-      console.log(`restart: ${restart}`);
-      console.log(`isFullContext: ${isFullContext}`);
-      console.log(`ignoreMessage: ${ignoreMessage}`);
-      console.log(`fetchCount: ${fetchCount}`);
+    let prevMessages = await message.channel.messages.fetch({ limit: fetchCount });
+    if (!isFullContext) {
+      prevMessages = prevMessages.filter(msg => msg.author.id === message.author.id);
+      prevMessages = prevMessages.first(3);
+    }
 
-      const prevMessages = await message.channel.messages.fetch({ limit: fetchCount });
-      prevMessages.reverse();
-      prevMessages.forEach((msg) => {
-        if (msg.author.bot) return;
+    prevMessages.reverse();
+    prevMessages.forEach((msg) => {
+      if (msg.author.bot) return;
 
-        // disable so it can see the full message history (not just those who directly talk to it)
-        //if (!message.content.toLowerCase().startsWith('fairy')) return; 
+      // disable so it can see the full message history (not just those who directly talk to it)
+      //if (!message.content.toLowerCase().startsWith('fairy')) return; 
 
-        // disable so it can have multi-person conversations
-        if (!isFullContext) {
-          if (msg.author.id !== message.author.id) return;
-        }
+      // don't think it's needed anymore?
+      //if (message.content.toLowerCase().startsWith('fairy')) message.content = message.content.replace(/fairy/i, '');
 
-        if (message.content.toLowerCase().startsWith('fairy')) message.content = message.content.replace(/fairy/i, '');
+      if (kataronicsRequested && !kataronicsGiven) {
+        msg.content = msg.content + kataronicsText;
+        kataronicsGiven = true;
+      }
 
-        if (kataronicsRequested && !kataronicsGiven) {
-          msg.content = msg.content + kataronicsText;
-          kataronicsGiven = true;
-        }
+      if (ignoreMessage) msg.content = 'Fairy respond with exactly "Go away pervert <:hs_165_FrogConcern:846073664285704252>" and nothing else, no explanation'
 
-        if (ignoreMessage) msg.content = 'Fairy respond with exactly "Go away pervert <:hs_165_FrogConcern:846073664285704252>" and nothing else, no explanation'
+      if (shutdown) msg.content = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
 
-        if(restart) msg.content = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
+      console.log(msg.author.username + ': ' + msg.content);
 
-        console.log(msg.author.username + ': ' + msg.content);
+      conversationLog.push({
+        role: 'user',
+        content: msg.author.username + ': ' + msg.content,
+      });
+    });
 
-        conversationLog.push({
-          role: 'user',
-          content: msg.author.username + ': ' + msg.content,
-        });
+    const result = await openai
+      .createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: conversationLog,
+        max_tokens: 400, // limit token usage
+      })
+      .catch((error) => {
+        console.log(`OPENAI ERR: ${error}`);
       });
 
-      const result = await openai
-        .createChatCompletion({
-          model: 'gpt-3.5-turbo',
-          messages: conversationLog,
-          max_tokens: 400, // limit token usage
-        })
-        .catch((error) => {
-          console.log(`OPENAI ERR: ${error}`);
+    let response = result.data.choices[0].message.content;
+
+    if (response.includes('Go away pervert')) {
+      message.member.timeout(1 * 60 * 1000)
+        .then(() => console.log("Timed out member: " + message.author.username))
+        .catch(err => {
+          console.log('Error timing out user: ' + err);
         });
+    }
+    //response = response.replace(/fairy:\s/i, '');
+    console.log('FaiRY response: ' + response);
 
-      let response = result.data.choices[0].message.content;
-
-      if (response.includes('Go away pervert')) {
-        message.member.timeout(1 * 60 * 1000)
-          .then(() => console.log("Timed out member: " + message.author.username))
-          .catch(err => {
-            console.log('Error timing out user: ' + err);
-          });
-      }
-      //response = response.replace(/fairy:\s/i, '');
-      //response = response.replace(/(\*\*)/g, '\\$1');
-      console.log('FaiRY response: ' + response);
-
-      result.data.choices[0].message.content = response;
-      message.reply(result.data.choices[0].message);
-      if(restart){
-        client.destroy();
-        throw "Fairy restarting";
-      }
-    } catch (error) {
-      console.log(`ERR: ${error}`);
-      return false;
+    result.data.choices[0].message.content = response;
+    await message.reply(result.data.choices[0].message);
+    if (shutdown) {
+      throw "Fairy restarting";
     }
   });
 
@@ -213,8 +202,9 @@ async function startBot(client) {
 (async function main() {
   let client;
   let loggedIn = false;
+  let restarts = 0;
 
-  while (!loggedIn) {
+  while (!loggedIn && restarts < 5 && !shutdown) {
     try {
       client = new Client({
         intents: [
@@ -229,9 +219,12 @@ async function startBot(client) {
       });
 
       loggedIn = await startBot(client);
+
     } catch (error) {
       console.log(`Bot restart error: ${error}`);
       client.destroy();
+      loggedIn = false;
+      restarts++;
     }
   }
 })();
