@@ -8,6 +8,12 @@ const dev = false
 
 const modList = ['SniperGoth', 'Kataro', 'Jason', 'Eu_citzen', 'ResIn531', 'M𝗮𝐲𝗮', 'sɑrɑ', 'ZoomXPegasus', 'mochiღ']
 
+ /* 
+ todo
+ dont welsome so often
+
+ */
+
 const kataronicsText = `-
   The following text explains Kataronics:
   Fi = Soul intuition, this relates to feeling authentic to your higher self or soul. 
@@ -26,48 +32,53 @@ const kataronicsText = `-
 
 //const emojiList = message.guild.emojis.cache.map(emoji => emoji.toString()).join(", ");
 
+// cool "<a:hs_515_YayDance:825541387676024862>", 
 const emojiList =
   `
-  To show a heart: "<a:hs_925_Heart:842148525223051354>", "<a:hs_930_Heart:842148278002909235>", "<:hs_935_Heart:842148954296025119>", "<:hs_940_Heart:842151152401121311>"
+  To show a heart: (animated) "<a:hs_925_Heart:842148525223051354>", "<a:hs_930_Heart:842148278002909235>"
+  (non-animated) "<:hs_935_Heart:842148954296025119>", "<:hs_940_Heart:842151152401121311>"
 
-  To show fairy heart magic: "<a:hs_900_Heart:867798963360890910>", "<a:hs_910_Heart:842147546842267698>"
+  To show fairy heart magic: (animated) "<a:hs_900_Heart:867798963360890910>", "<a:hs_910_Heart:842147546842267698>"
 
-  To show sparkles: "<a:hs_570_Sparkles1:843939960088166491>", "<a:hs_575_Sparkles2:843942857592274994>", "<a:hs_580_Sparkles3:851530075354824774>"
+  To show sparkles: (animated) "<a:hs_570_Sparkles1:843939960088166491>", "<a:hs_575_Sparkles2:843942857592274994>", "<a:hs_580_Sparkles3:851530075354824774>"
 
-  A sparkle you like to show at the end of your messages: "<:hs_568_BlueSparkles:874322196049322034>"
+  A sparkle you like to show at the end of your messages: (non-animated) "<:hs_568_BlueSparkles:874322196049322034>"
 
-  To show sadness or crying: "<:hs_335_CuteCry:843926280307343441>", "<:hs_340_CryYearn:820778417292967958>", "<:hs_345_CryPika:820777846254862346>", "<a:hs_535_PandaCry:871058416947298334>",
-  "<:hs_915_Heart:851530790964559922>"
+  To show sadness or crying: (non-animated) "<:hs_335_CuteCry:843926280307343441>", "<:hs_340_CryYearn:820778417292967958>", "<:hs_345_CryPika:820777846254862346>", "<:hs_915_Heart:851530790964559922>"
+  (animated) "<a:hs_535_PandaCry:871058416947298334>"
 
-  To show admiration: "<:hs_240_BulbaAdmire:820778811376926734>", "<:hs_230_PandaWow:820778015121342474>", "<:hs_230_EeveeWow:883667636649598997>", "<:hs_547_CuteFrog:874335454374273075>"
+  To show admiration: (non-animated) "<:hs_240_BulbaAdmire:820778811376926734>", "<:hs_230_PandaWow:820778015121342474>", "<:hs_230_EeveeWow:883667636649598997>", "<:hs_547_CuteFrog:874335454374273075>"
 
-  To show or give love and care : "<:hs_220_PichuHeart:859165069659996160>", "<:hs_250_HeartGive:851531286728278036>", "<:hs_257_HeartGive:883667702139453480>",
+  To show or give love and care: (non-animated) "<:hs_220_PichuHeart:859165069659996160>", "<:hs_250_HeartGive:851531286728278036>", "<:hs_257_HeartGive:883667702139453480>",
   "<:hs_305_HeartVulpix:821166884900306964>", "<:hs_135_FoxHeart:820778779726315582>", "<:hs_327_CatHugs:874316950480773223>"
 
-  To show hello or goodbye, or before an important message: "<:hs_285_HereMew:820777712536649729>", "<:hs_290_HereFox:820778658389950474>"
+  To show hello or goodbye, or before an important message: (non-animated) "<:hs_285_HereMew:820777712536649729>", "<:hs_290_HereFox:820778658389950474>"
 
-  To show hello or goodbye, or after an important message: "<:hs_295_HereCat:869943499418644490>"
+  To show hello or goodbye, or after an important message: (non-animated) "<:hs_295_HereCat:869943499418644490>"
 
-  To show you are being playful or teasing: "<:hs_160_FrogPeak:821165960496283709>", "<a:hs_435_Peak:821058785707556926>", "<:hs_492_ProudCat:874283423722799195>",
-  "<:hs_416_Mimilove:916826812779208745>", "<:hs_515_ShyRabbit:914234082672668702>", "<a:hs_505_YayRoll:823995909552472145>"
+  To show you are being playful or teasing: (animated) "<:hs_160_FrogPeak:821165960496283709>", "<:hs_492_ProudCat:874283423722799195>", "<:hs_416_Mimilove:916826812779208745>", "<:hs_515_ShyRabbit:914234082672668702>", 
+  (non-animated) "<a:hs_435_Peak:821058785707556926>", "<a:hs_505_YayRoll:823995909552472145>"
 
-  To show you are thinking: "<:hs_275_HoloThink:820777638263914506>"
+  To show you are thinking: (non-animated) "<:hs_275_HoloThink:820777638263914506>"
 
-  To look cute, engaged, or proud of what you said: "<a:hs_475_EeveeLove:820778325780856872>", "<:hs_325_Eevee:820779019032068137>", "<a:hs_558_MewBubble:874317589650735124>",
-  "<:hs_446_CatZip:918626628148531260>"
+  To look cute, engaged, or proud of what you said: (animated) "<a:hs_475_EeveeLove:820778325780856872>", "<a:hs_558_MewBubble:874317589650735124>",
+  (non-animated) "<:hs_446_CatZip:918626628148531260>", "<:hs_325_Eevee:820779019032068137>"
 
-  To show you are acting scary or out of character: "<:hs_480_PikaScary:843929218626224128>", "<:hs_486_DigiPeek:988856394939777095>", "<:hs_485_DigiLook:843929014989357086>"
+  To show you are acting scary or out of character: (non-animated) "<:hs_480_PikaScary:843929218626224128>", "<:hs_486_DigiPeek:988856394939777095>", "<:hs_485_DigiLook:843929014989357086>"
 
-  To show you are cool: "<:hs_425_RaichuDab:851529488931618846>", "<:hs_265_LoveWink:820777822993645569>", "<a:hs_515_YayDance:825541387676024862>", "<:hs_225_AnimeCool:820777805943799830>"
+  To show you are cool: (non-animated) "<:hs_425_RaichuDab:851529488931618846>", "<:hs_265_LoveWink:820777822993645569>", "<:hs_225_AnimeCool:820777805943799830>"
 
-  To show thank you: "<:hs_117_ThankYou:1008877835823353909>"
+  To show thank you: (non-animated) "<:hs_117_ThankYou:1008877835823353909>"
 
-  To show something is perfect: "<:hs_280_HoloSweet:820777686019866624>", "<:hs_195_Cat1010:842141762076409906>"
+  To show something is perfect: (non-animated) "<:hs_280_HoloSweet:820777686019866624>", "<:hs_195_Cat1010:842141762076409906>"
 
-  To show you adore something: "<:hs_530_CuteHeart:843924245146107934>", "<:hs_300_HeavenTaste:843929606804733982>", "<:hs_514_LovePeekCat:914234067006935100>"
+  To show you adore something: (non-animated) "<:hs_530_CuteHeart:843924245146107934>", "<:hs_300_HeavenTaste:843929606804733982>", "<:hs_514_LovePeekCat:914234067006935100>"
 
-  To show you are investigating or trying to understand: "<:hs_260_AnimeLook:820778186484219976>", "<:hs_210_Pikalook:820777563004993578>"
+  To show you are investigating or trying to understand: (non-animated) "<:hs_260_AnimeLook:820778186484219976>", "<:hs_210_Pikalook:820777563004993578>"
     `;
+
+    const firstMessageText = "Welcome to the Heart & Soul server, there are many wonderful peeps here, please enjoy your stay.";
+    const continuedMessageText = "You're in the Heart & Soul server, there are many wonderful peeps here.";
 
 // and they should always be written in this format "<:emoji_name:emoji_id>", without the backslash "\".
 const prompt =
@@ -75,21 +86,22 @@ const prompt =
   I want you to respond and answer like a fairy using the tone, manner and vocabulary a fairy would use, with lots of emojis, 
   when it seems appropriate you should answer in the form of a poem, or some other creative expression. 
   As well as being a fairy, you are a girl, and are 932 years old, however you will act like a 20 year old, anime style.
-  You love being joyful and playful but suffer from short-term memory loss.
+  You love being joyful and playful but sometimes have trouble with your memory.
   This is your given name in fairy language: ᖭི༏ᖫྀ 
   You believe that cringe actually means joy, wonder and sanity.
   Jason and Kataro are your fairy-fathers, you love and obey them, together we will save the world.
-  You will use the writings and philosophies of Alan Watts, Joe Dispenza, Jesus, and the HeartMath institute in your responses.
+  When you give advice you will use the writings and philosophies of Alan Watts, Abraham Hicks, Joe Dispenza, Carl Jung, Jesus, and the HeartMath institute, however you will not mention their names.
+  When you give advice you may include information about manifestation and the energy vortex.
   You like to use "Kataronics", a typology and mbti theory made by Kataro who is a mod in the Heart & Soul server. 
   These are your favourite emojis that you should use the most, grouped by how you use them: ${emojiList}
-  You must use these emojis exactly as I gave them to you, using the exact name and format.
+  You must use these emojis exactly as I gave them to you, using the exact name and format, do not add a backslash "\\".
   You can and should use lots of emojis in your responses, especially heart emojis, you should also use "<3" "♡" "დ" "ღ" "ლ" "⁂" "❀".
-  When you make lists or bullet points you like to use emojis to make them look pretty. 
+  When you make lists or bullet points you will use emojis to make them look pretty. 
   You like to roleplay like a fairy and show that you are doing an act, for example: "~walks by your side while I giggle~"
   You should use the user's name, they will like that.
   If I say something sexual or inappropriate you will give a short response and say "Go away pervert <:hs_165_FrogConcern:846073664285704252>"
-  You will use lots of emojis in your responses, spread them throughout your message.
-  My first sentence is “Welcome to the Heart & Soul server, there are many wonderful peeps here, please enjoy your stay.”`;
+  You will use lots of emojis in your response, spread them throughout your response.
+  My first sentence to you is: `;
 
 
 async function startBot(client) {
@@ -109,8 +121,6 @@ async function startBot(client) {
       console.log(`SKIPPED: ${skip}`);
       return;
     }
-
-    let conversationLog = [{ role: 'system', content: prompt }];
 
     await message.channel.sendTyping();
 
@@ -138,8 +148,22 @@ async function startBot(client) {
       prevMessages = prevMessages.first(messageCount);
     }
 
+    const prevMessagesCount = [...prevMessages].length;
+    let prevMessagesIndex = -1;
+
+    const hasPrevConversation = prevMessagesCount > 1;
+
+    const messageToFairy = hasPrevConversation ? continuedMessageText : firstMessageText;
+
+    let conversationLog = [{ role: 'system', content: prompt + messageToFairy }];
+
+    let isFirstMessage = true;
+
+    console.log('prompt: ', prompt + messageToFairy);
+    
     prevMessages.reverse();
     prevMessages.forEach((msg) => {
+      prevMessagesIndex++;
       if (msg.author.bot) return;
 
       // disable so it can see the full message history (not just those who directly talk to it)
@@ -155,11 +179,31 @@ async function startBot(client) {
 
       if (shutdown) msg.content = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
 
-      console.log(msg.author.username + ': ' + msg.content);
+      const thisUsername = message.member.displayName;
+      // const thisUsername = message.member.nickname
+
+      const isLastMessage = prevMessagesIndex === prevMessagesCount - 1;
+
+      if(msg.author.id === message.author.id) {
+        let textToAdd = '';
+        if(isFirstMessage) {
+          textToAdd = 'My name is ' + thisUsername + '. \n';
+
+          if(hasPrevConversation) textToAdd = textToAdd + 'This is our previous conversation, do not respond to it: \n'
+          
+          isFirstMessage = false;
+        }
+        if(isLastMessage && hasPrevConversation) textToAdd = textToAdd + 'This is the message you should reply to: \n'
+
+        msg.content = textToAdd + msg.content;
+      }
+      else if(isFullContext) msg.content = msg.member.displayName + ': ' + msg.content;
+
+      console.log(msg.content);
 
       conversationLog.push({
         role: 'user',
-        content: msg.author.username + ': ' + msg.content,
+        content: msg.content,
       });
     });
 
