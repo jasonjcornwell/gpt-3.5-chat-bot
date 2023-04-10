@@ -10,7 +10,11 @@ todo
 use server nickname
 //continue to continue the last message
 //your fairy family are the mods
-// use ASCII art
+// get user mbti roles
+// get user profile
+// set your name
+
+// get and summerise user history
 */
 
 
@@ -84,7 +88,7 @@ async function startBot(client) {
     else if(isDevChannel) prompt = Prompts.getPromptDev();
     else throw new Error('Unknown channel');
 
-    console.log('Prompt: ', prompt);
+    //console.log('Prompt: ', prompt);
 
     let conversationLog = [{ role: 'system', content: prompt }];
 
@@ -150,7 +154,9 @@ async function startBot(client) {
         console.log(`OPENAI ERR: ${error}`);
       });
 
-    let response = result.data.choices[0].message.content;
+    let response;
+    try {
+      response = result.data.choices[0].message.content;
 
     if (response.includes('Go away pervert')) {
       message.member.timeout(5 * 60 * 1000)
@@ -162,6 +168,19 @@ async function startBot(client) {
     //response = response.replace(/fairy:\s/i, '');
     console.log('FaiRY response: ' + response);
     
+  } catch (error) {
+    console.error("Error while processing response:", error);
+    try {
+      await message.channel.messages.fetch(message.id)
+      console.log('Writing UwU');
+      await message.reply("UwU");
+    } catch (error) {
+      console.log('MESSAGE DELETED');
+    }
+    return; 
+  }
+    
+  //fix duplicate code
     try {
       await message.channel.messages.fetch(message.id)
     } catch (error) {
@@ -169,7 +188,14 @@ async function startBot(client) {
       return; //the message no longer exists and will be ignored
     }
 
-    await message.reply(result.data.choices[0].message);
+    try{
+      await message.reply(result.data.choices[0].message);
+    }
+    catch (error) {
+      console.error("Error while sending reply:", error);
+      return; 
+    }
+
     if (shutdown) {
       throw "Fairy restarting";
     }
