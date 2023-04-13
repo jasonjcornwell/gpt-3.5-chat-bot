@@ -1,7 +1,7 @@
 require('dotenv/config');
 var Prompts = require('./prompts.js');
 const User = require('./user.js');
-const { Client, IntentsBitField } = require('discord.js');
+const { Client, IntentsBitField, Collection } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
 
 /* 
@@ -79,20 +79,25 @@ async function startBot(client) {
     else if (commandProperties.callMe) {
       ({ user, messageToFairy } = updateCallMe(message, user));
     }
-    else if (commandProperties.chatSummary) {
-      ({ user, messageToFairy } = updateChatSummary(message, user));
-    }
     else if (commandProperties.shutdownBot) {
       messageToFairy = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
     }
     else {
-      messageToFairy = message.content;
+      if (commandProperties.isHistory) messageToFairy = "Please provide the notes and a personal bio for myself based on the previous messages"
+      else messageToFairy = message.content;
+
+      // if (commandProperties.isHistory && user.chatSummary) {
+      //   messageToFairy = user.chatSummary;
+      // }
+
       const prevConvo = await addPrevMessages(message, commandProperties, user);
       conversationLog.push({
         role: 'system',
         content: prevConvo,
       });
+
     }
+
     messageToFairy = 'This is the new message you should reply to: "' + messageToFairy + '"';
 
 
@@ -100,13 +105,6 @@ async function startBot(client) {
       role: 'user',
       content: messageToFairy,
     });
-
-
-    // conversationLog.push({
-    //   role: 'user',
-    //   content: message.content,
-    // });
-
 
     console.log('conversationLog', conversationLog);
 
@@ -124,6 +122,13 @@ async function startBot(client) {
         });
 
       const response = result.data.choices[0].message.content;
+
+
+      // //gethistory
+      if (commandProperties.isHistory) {
+        console.log(`Chat Summary for ${user.userid}`);
+        user.update({ chatSummary: response });
+      }
 
       sendMessage(message, response);
 
@@ -173,7 +178,7 @@ function getCommandProperties(message) {
     callMe: message.content.toLowerCase().startsWith('//callme'),
     bio: message.content.toLowerCase().startsWith('//aboutme'),
     isFullContext: false,
-    getUserHistory: message.content.startsWith('//gethistory'),
+    isHistory: message.content.startsWith('//gethistory'),
     shouldShutdown: false,
   };
 
@@ -280,7 +285,10 @@ function getPrompt(channelId, commandProperties) {
   } else if (commandProperties.isHicks) {
     prompt = Prompts.getPromptHicks();
     promptName = 'HICKS';
-  } else if (channelId === ChannelType.PROD) {
+  } else if (commandProperties.isHistory) {
+    prompt = Prompts.getPromptHistory();
+    promptName = 'HISTORY';
+  }else if (channelId === ChannelType.PROD) {
     prompt = Prompts.getPromptProd();
     promptName = 'PROD';
   } else if (channelId === ChannelType.DEV) {
@@ -329,38 +337,24 @@ function updateCallMe(message, user) {
   };
 }
 
-function updatechatSummary(message, user) {
-  let messageToFairy = '';
-  let callMe = message.content.slice(8).trim();
-  if (callMe.length <= 20) {
-    user.update({ callMe: callMe });
-    messageToFairy = `Fairy if it is appropriate, I would like you to call me: ${callMe}`;
-  }
-  else messageToFairy = `Fairy please explain that the "callMe" name can't be more than 20 characters`;
-
-  return {
-    messageToFairy: messageToFairy,
-    user: user
-  };
-}
-
 async function addPrevMessages(message, commandProperties, user) {
-  const prevMessages = await fetchPreviousMessages(message, commandProperties, user);
+  let prevMessages;
+  if (commandProperties.isHistory) prevMessages = await fetchManyPreviousMessages(message, commandProperties, user);
+  else prevMessages = await fetchPreviousMessages(message, commandProperties, user);
   const prevMessagesCount = [...prevMessages].length;
   const hasPrevConversation = prevMessagesCount > 0
   let convo = ''
 
-  
-  if (commandProperties.kataronicsRequested) {
-    convo += getKataronics();
-  }
-  else if(!commandProperties.isFullContext){
+  if (commandProperties.kataronicsRequested) convo += getKataronics();
+  else if (commandProperties.isHistory) convo += `My name is ${user.getName()} and this is my message history: "`
+  else if (!commandProperties.isFullContext) {
     convo += user.aboutMe() + '\n';
-    if (hasPrevConversation) convo += 'This is the context of our conversation, do not respond to it: \n'
+    if (hasPrevConversation) convo += 'This is the context of our conversation, do not respond to it: '
   }
 
   prevMessages.forEach((msg) => {
     if (msg.author.bot) return;
+    convo += '\n';
 
     if (commandProperties.isFullContext) {
       const thisUser = {
@@ -371,34 +365,69 @@ async function addPrevMessages(message, commandProperties, user) {
       msg.content = thisUser.username + ': ' + msg.content;
     }
 
-    convo += msg.content + '.\n';
+    convo += msg.content + '.';
   });
+
+  if (commandProperties.isHistory) convo += `"`
+
+  console.log('Convo length: ', convo.length)
 
   return convo;
 }
 
+async function fetchManyPreviousMessages(message, commandProperties, user) {
+  console.log('Fetching previous messages');
+  const fetchTimes = 5;
+  const messageCount = 100
+
+  let collection = new Collection();
+  let lastId = null;
+  let options = {
+    limit: 100,
+  };
+
+  for (let i = 0; i < fetchTimes; i++) {
+    if (lastId) options.before = lastId;
+
+    let messages = await message.channel.messages.fetch(options);
+
+    if (!messages.last()) break;
+
+      // Skip the first message
+    if (i === 0) messages = messages.filter(msg => msg.id !== message.id);
+
+    collection = collection.concat(messages);
+    lastId = messages.last().id;
+
+    console.log('Last message', messages.last().content)
+  }
+
+  collection = collection.filter(msg => msg.author.id === user.userid);
+  collection = collection.first(messageCount);
+
+  return collection.reverse();
+}
+
 async function fetchPreviousMessages(message, commandProperties, user) {
   console.log('Fetching previous messages');
-
-  console.log('User', user);
-  console.log('Userid', user.userid);
-
   let fetchCount = 20;
-  if (commandProperties.getUserHistory) fetchCount = 200;
+  if (commandProperties.isHistory) fetchCount = 100;
   let messages = await message.channel.messages.fetch({ limit: fetchCount });
 
   // Skip the first message
   messages = messages.filter(msg => msg.id !== message.id);
 
-  const messageCount = commandProperties.getUserHistory ? 50
+  const messageCount = commandProperties.isHistory ? 50
     : (commandProperties.isExtraContext ? 10 : 5);
+
+  console.log('messageCount', messageCount);
 
   if (!commandProperties.isFullContext) {
     messages = messages.filter(msg => msg.author.id === user.userid);
     messages = messages.first(messageCount);
   }
-  messages.reverse();
-  return messages;
+
+  return messages.reverse();
 }
 
 function shutdownBot(client) {
