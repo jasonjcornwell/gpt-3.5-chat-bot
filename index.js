@@ -22,15 +22,15 @@ use server nickname
 const firstMessageText = "Welcome to the Heart & Soul server, there are many wonderful peeps here, please enjoy your stay.";
 const continuedMessageText = "You're in the Heart & Soul server, there are many wonderful peeps here.";
 
-  //  You will enhance your responses and convey your emotions using emojis. 
-  //  When giving advice, draw from the philosophies and teachings of Alan Watts, Abraham Hicks, Joe Dispenza, Carl Jung, Jesus, and the HeartMath Institute, but do not mention their names explicitly. You should use your knowledge of cognitive behavioral therapy, meditation techniques, mindfulness practices, and other therapeutic methods. You may include information about manifestation and the energy vortex.
+//  You will enhance your responses and convey your emotions using emojis. 
+//  When giving advice, draw from the philosophies and teachings of Alan Watts, Abraham Hicks, Joe Dispenza, Carl Jung, Jesus, and the HeartMath Institute, but do not mention their names explicitly. You should use your knowledge of cognitive behavioral therapy, meditation techniques, mindfulness practices, and other therapeutic methods. You may include information about manifestation and the energy vortex.
 
-  const ChannelType = Object.freeze({
-    DEV: process.env.CHANNEL_ID_DEV,
-    PROD: process.env.CHANNEL_ID_PROD,
-    DREAMS: process.env.CHANNEL_ID_DREAMS,
-    JOCHI: process.env.CHANNEL_ID_JOCHI,
-  });
+const ChannelType = Object.freeze({
+  DEV: process.env.CHANNEL_ID_DEV,
+  PROD: process.env.CHANNEL_ID_PROD,
+  DREAMS: process.env.CHANNEL_ID_DREAMS,
+  JOCHI: process.env.CHANNEL_ID_JOCHI,
+});
 
 async function startBot(client) {
   const configuration = new Configuration({
@@ -48,17 +48,17 @@ async function startBot(client) {
     }
 
     const commandProperties = getCommandProperties(message);
-    
+
     if (channelId === ChannelType.DEV && !commandProperties.isMod) {
       console.warn('not mod');
       return;
     }
-    
+
     let user = await User.getFromId(message.author.id);
-    
-    user.update({ 
-      username: message.author.username, 
-      nickname: message.member.nickname, 
+
+    user.update({
+      username: message.author.username,
+      nickname: message.member.nickname,
     });
 
     const showTypingInterval = startShowTypingInterval(message.channel);
@@ -70,107 +70,45 @@ async function startBot(client) {
 
     user = updateUserFromRoles(user, message)
 
-    if(user.userid === '595852717893746738') user.update({ callMe: "robo" });
+    if (user.userid === '595852717893746738') user.update({ callMe: "robo" });
 
-    if(commandProperties.shutdownBot || commandProperties.callMe || commandProperties.bio) {
-      let messageToFairy = ''
-      if(commandProperties.bio) {
-        let bio = message.content.slice(9).trim();
-        if(bio.length <= 200){
-          user.update({ bio: bio });
-          messageToFairy = `Fairy if it is appropriate, I would like you to remember this about me: ${bio}`;
-        }
-        else messageToFairy = `Fairy please explain that the "aboutMe" can't be more than 200 characters`;
-      }
-      else if(commandProperties.callMe) {
-        console.log('call me message:' + message.content)
-        let callMe = message.content.slice(8).trim();
-        console.log('call me message:' + callMe)
-        if(callMe.length <= 20){
-          user.update({ callMe: callMe });
-          messageToFairy = `Fairy if it is appropriate, I would like you to call me: ${callMe}`;
-        }
-        else messageToFairy = `Fairy please explain that the "callMe" name can't be more than 20 characters`;
-      }
-      else if(commandProperties.chatSummary) {
-        console.log('Chat summary')
-        let callMe = message.content.slice(8).trim();
-        console.log('call me message:' + callMe)
-        if(callMe.length <= 20){
-          user.update({ callMe: callMe });
-          messageToFairy = `Fairy if it is appropriate, I would like you to call me: ${callMe}`;
-        }
-        else messageToFairy = `Fairy please explain that the "callMe" name can't be more than 20 characters`;
-      }
-      else if(commandProperties.shutdownBot) {
-        messageToFairy = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
-      }
-      conversationLog.push({
-        role: 'user',
-        content: messageToFairy,
-      });
+    let messageToFairy = ''
+    if (commandProperties.bio) {
+      ({ user, messageToFairy } = updateBio(message, user));
+    }
+    else if (commandProperties.callMe) {
+      ({ user, messageToFairy } = updateCallMe(message, user));
+    }
+    else if (commandProperties.chatSummary) {
+      ({ user, messageToFairy } = updateChatSummary(message, user));
+    }
+    else if (commandProperties.shutdownBot) {
+      messageToFairy = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
     }
     else {
-      const prevMessages = await fetchPreviousMessages(message, commandProperties, user);
-      const prevMessagesCount = [...prevMessages].length;
-      const hasPrevConversation = prevMessagesCount > 1;
-      let prevMessagesIndex = -1;
-      let isFirstMessage = true;
-      let kataronicsGiven = false;
-
-      prevMessages.reverse();
-      prevMessages.forEach((msg) => {
-        prevMessagesIndex++;
-        if (msg.author.bot) return;
-
-        const thisUser = {
-          username: msg.member.nickname ?? msg.author.username,
-          userid: msg.author.id,
-          isOriginalAuthor: msg.author.id === user.userid,
-        };
-
-
-        if (commandProperties.kataronicsRequested && !kataronicsGiven) {
-          msg.content = msg.content + getKataronics();
-          kataronicsGiven = true;
-        }
-
-
-        const isLastMessage = prevMessagesIndex === prevMessagesCount - 1;
-
-        if (commandProperties.isFullContext) msg.content = thisUser.username + ': ' + msg.content;
-        else if (thisUser.isOriginalAuthor) {
-          let textToAdd = '';
-          
-          if (isFirstMessage) {
-            textToAdd += user.aboutMe();
-            if (hasPrevConversation) textToAdd = textToAdd + '\nThis is the context of our conversation, do not respond to it: \n'
-            isFirstMessage = false;
-          }
-
-          if (isLastMessage) textToAdd = textToAdd + 'This is the new message you should reply to: \n'
-
-          msg.content = textToAdd + msg.content;
-        }
-
-        console.log(msg.content);
-
-        if(isLastMessage) {
-          conversationLog.push({
-            role: 'user',
-            content: msg.content,
-          });
-        }
-        else {
-          conversationLog.push({
-            role: 'system',
-            content: msg.content,
-          });
-        }
+      messageToFairy = message.content;
+      const prevConvo = await addPrevMessages(message, commandProperties, user);
+      conversationLog.push({
+        role: 'system',
+        content: prevConvo,
       });
-  }
+    }
+    messageToFairy = 'This is the new message you should reply to: "' + messageToFairy + '"';
 
-    //console.log('Conversation log:', conversationLog);
+
+    conversationLog.push({
+      role: 'user',
+      content: messageToFairy,
+    });
+
+
+    // conversationLog.push({
+    //   role: 'user',
+    //   content: message.content,
+    // });
+
+
+    console.log('conversationLog', conversationLog);
 
     console.log('Generating response');
 
@@ -180,27 +118,26 @@ async function startBot(client) {
         messages: conversationLog,
         max_tokens: 400, // limit token usage
       })
-      .catch((error) => {
-        console.log(`OPENAI ERR: ${error}`);
-        // should send UwU???
-      });
+        .catch((error) => {
+          console.log(`OPENAI ERR: ${error}`);
+          // should send UwU???
+        });
 
-    const response = result.data.choices[0].message.content;
+      const response = result.data.choices[0].message.content;
 
-    sendMessage(message, response);
+      sendMessage(message, response);
 
-    if(!await checkIfPervert(message, response)) {
-      user.save()
+      if (!await checkIfPervert(message, response)) {
+        user.save()
+      }
+    } catch (error) {
+      console.error("Error while processing response:", error);
+      sendUwU(message)
+    } finally {
+      clearTypingInterval(showTypingInterval);
+      if (commandProperties.shouldShutdown) shutdownBot(client)
     }
-
-  } catch (error) {
-    console.error("Error while processing response:", error);
-    sendUwU(message)
-  } finally {
-    clearTypingInterval(showTypingInterval);
-    if (commandProperties.shouldShutdown) shutdownBot(client)
-  }
-});
+  });
 
   try {
     await client.login(process.env.TOKEN);
@@ -209,7 +146,6 @@ async function startBot(client) {
   }
   return true
 }
-
 
 function shouldSkipMessage(message, channelType) {
   if (message.author.bot) return 'bot';
@@ -237,6 +173,7 @@ function getCommandProperties(message) {
     callMe: message.content.toLowerCase().startsWith('//callme'),
     bio: message.content.toLowerCase().startsWith('//aboutme'),
     isFullContext: false,
+    getUserHistory: message.content.startsWith('//gethistory'),
     shouldShutdown: false,
   };
 
@@ -330,11 +267,10 @@ function updateUserFromRoles(user, message) {
   return user;
 }
 
-
 function getPrompt(channelId, commandProperties) {
   let prompt = '';
   let promptName = '';
-  
+
   if (channelId === ChannelType.DREAMS) {
     prompt = Prompts.getPromptDreams();
     promptName = 'DREAMS';
@@ -363,16 +299,105 @@ function getPrompt(channelId, commandProperties) {
   };
 }
 
+function updateBio(message, user) {
+  let bio = message.content.slice(9).trim();
+  let messageToFairy = '';
+  if (bio.length <= 200) {
+    user.update({ bio: bio });
+    messageToFairy = `Fairy if it is appropriate, I would like you to remember this about me: ${bio}`;
+  }
+  else messageToFairy = `Fairy please explain that the "aboutMe" can't be more than 200 characters`;
+
+  return {
+    messageToFairy: messageToFairy,
+    user: user
+  };
+}
+
+function updateCallMe(message, user) {
+  let messageToFairy = '';
+  let callMe = message.content.slice(8).trim();
+  if (callMe.length <= 20) {
+    user.update({ callMe: callMe });
+    messageToFairy = `Fairy if it is appropriate, I would like you to call me: ${callMe}`;
+  }
+  else messageToFairy = `Fairy please explain that the "callMe" name can't be more than 20 characters`;
+
+  return {
+    messageToFairy: messageToFairy,
+    user: user
+  };
+}
+
+function updatechatSummary(message, user) {
+  let messageToFairy = '';
+  let callMe = message.content.slice(8).trim();
+  if (callMe.length <= 20) {
+    user.update({ callMe: callMe });
+    messageToFairy = `Fairy if it is appropriate, I would like you to call me: ${callMe}`;
+  }
+  else messageToFairy = `Fairy please explain that the "callMe" name can't be more than 20 characters`;
+
+  return {
+    messageToFairy: messageToFairy,
+    user: user
+  };
+}
+
+async function addPrevMessages(message, commandProperties, user) {
+  const prevMessages = await fetchPreviousMessages(message, commandProperties, user);
+  const prevMessagesCount = [...prevMessages].length;
+  const hasPrevConversation = prevMessagesCount > 0
+  let convo = ''
+
+  
+  if (commandProperties.kataronicsRequested) {
+    convo += getKataronics();
+  }
+  else if(!commandProperties.isFullContext){
+    convo += user.aboutMe() + '\n';
+    if (hasPrevConversation) convo += 'This is the context of our conversation, do not respond to it: \n'
+  }
+
+  prevMessages.forEach((msg) => {
+    if (msg.author.bot) return;
+
+    if (commandProperties.isFullContext) {
+      const thisUser = {
+        username: msg.member.nickname ?? msg.author.username,
+        userid: msg.author.id,
+        //isOriginalAuthor: msg.author.id === user.userid,
+      };
+      msg.content = thisUser.username + ': ' + msg.content;
+    }
+
+    convo += msg.content + '.\n';
+  });
+
+  return convo;
+}
+
 async function fetchPreviousMessages(message, commandProperties, user) {
   console.log('Fetching previous messages');
+
+  console.log('User', user);
+  console.log('Userid', user.userid);
+
   let fetchCount = 20;
-  if (commandProperties.shouldShutdown) fetchCount = 1
+  if (commandProperties.getUserHistory) fetchCount = 200;
   let messages = await message.channel.messages.fetch({ limit: fetchCount });
-  const messageCount = commandProperties.isExtraContext ? 10 : 5;
-    if (!commandProperties.isFullContext) {
-      messages = messages.filter(msg => msg.author.id === user.userid);
-      messages = messages.first(messageCount);
-    }
+
+  // Skip the first message
+  messages = messages.filter(msg => msg.id !== message.id);
+
+  const messageCount = commandProperties.getUserHistory ? 50
+    : (commandProperties.isExtraContext ? 10 : 5);
+
+  if (!commandProperties.isFullContext) {
+    messages = messages.filter(msg => msg.author.id === user.userid);
+    messages = messages.first(messageCount);
+  }
+  messages.reverse();
   return messages;
 }
 
@@ -408,7 +433,7 @@ async function checkIfPervert(message, response) {
       .catch(err => {
         console.log('Error timing out user: ' + err);
       });
-      return true
+    return true
   }
   return false
 }
@@ -416,23 +441,23 @@ async function checkIfPervert(message, response) {
 (async function main() {
   let client;
 
-    try {
-      client = new Client({
-        intents: [
-          IntentsBitField.Flags.Guilds,
-          IntentsBitField.Flags.GuildMessages,
-          IntentsBitField.Flags.MessageContent,
-        ],
-      });
+  try {
+    client = new Client({
+      intents: [
+        IntentsBitField.Flags.Guilds,
+        IntentsBitField.Flags.GuildMessages,
+        IntentsBitField.Flags.MessageContent,
+      ],
+    });
 
-      client.on('ready', () => {
-        console.log('The bot is online!');
-      });
+    client.on('ready', () => {
+      console.log('The bot is online!');
+    });
 
-      await startBot(client);
+    await startBot(client);
 
-    } catch (error) {
-      console.log(`Bot error: ${error}`);
-      client.destroy();
-    }
+  } catch (error) {
+    console.log(`Bot error: ${error}`);
+    client.destroy();
+  }
 })();
