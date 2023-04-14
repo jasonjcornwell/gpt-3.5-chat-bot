@@ -83,7 +83,7 @@ async function startBot(client) {
       messageToFairy = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
     }
     else {
-      if (commandProperties.isHistory) messageToFairy = "Please provide the notes and a personal bio for myself based on the previous messages"
+      if (commandProperties.isHistory) messageToFairy = "Please write my notes, bio, MBTI, and cringe-rating, based on the previous messages."
       else messageToFairy = message.content;
 
       // if (commandProperties.isHistory && user.chatSummary) {
@@ -377,8 +377,9 @@ async function addPrevMessages(message, commandProperties, user) {
 
 async function fetchManyPreviousMessages(message, commandProperties, user) {
   console.log('Fetching previous messages');
-  const fetchTimes = 5;
+  const fetchTimes = 40;
   const messageCount = 100
+  let totalCharacters = 0;
 
   let collection = new Collection();
   let lastId = null;
@@ -395,14 +396,24 @@ async function fetchManyPreviousMessages(message, commandProperties, user) {
 
       // Skip the first message
     if (i === 0) messages = messages.filter(msg => msg.id !== message.id);
-
-    collection = collection.concat(messages);
+    
     lastId = messages.last().id;
 
-    console.log('Last message', messages.last().content)
+    messages = messages.filter(msg => msg.author.id === user.userid);
+
+    for (const msg of messages.values()) {
+      totalCharacters += msg.content.length;
+    }
+    
+    collection = collection.concat(messages);
+
+    console.log('Total characters', totalCharacters)
+
+    if(totalCharacters >= 15000) break;
+
+    //console.log('Last message', messages.last().content)
   }
 
-  collection = collection.filter(msg => msg.author.id === user.userid);
   collection = collection.first(messageCount);
 
   return collection.reverse();
@@ -452,7 +463,7 @@ async function sendMessage(message, response) {
 }
 
 async function sendUwU(message) {
-  sendMessage(message, 'UwU');
+  sendMessage(message, `Oh my, hello there wonderful human! I didn't hear your question, my apologies. Could you please repeat it for me? *giggles while fluttering my wings*`);
 }
 
 async function checkIfPervert(message, response) {
