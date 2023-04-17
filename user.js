@@ -69,8 +69,7 @@ class User {
       }
 
       aboutMe() {
-        let aboutMe = `Hi my name is ${this.nickname ?? this.username}`
-        if(this.callMe) aboutMe += ` but you should call me ${this.callMe}`
+        let aboutMe = `Hi my name is ${this.getName()}`
         if(this.mbti) aboutMe += `. My MBTI type is ${this.mbti}`
         if(this.age) aboutMe += `. I am ${this.age} years old`
         if(this.gender) aboutMe += `. I am ${this.gender}`

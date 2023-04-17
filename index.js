@@ -91,6 +91,7 @@ async function startBot(client) {
       // }
 
       const prevConvo = await addPrevMessages(message, commandProperties, user);
+      console.log('Prev convo', prevConvo);
       conversationLog.push({
         role: 'system',
         content: prevConvo,
@@ -98,15 +99,14 @@ async function startBot(client) {
 
     }
 
-    messageToFairy = 'This is the new message you should reply to: "' + messageToFairy + '"';
+    messageToFairy = `This is the new message you should reply to from ${user.getName()}: "${messageToFairy}"`;
+    console.log('New message', messageToFairy);
 
 
     conversationLog.push({
       role: 'user',
       content: messageToFairy,
     });
-
-    console.log('conversationLog', conversationLog);
 
     console.log('Generating response');
 
@@ -345,7 +345,7 @@ async function addPrevMessages(message, commandProperties, user) {
   const hasPrevConversation = prevMessagesCount > 0
   let convo = ''
 
-  if (commandProperties.kataronicsRequested) convo += getKataronics();
+  if (commandProperties.kataronicsRequested) convo += Prompts.getKataronics();
   else if (commandProperties.isHistory) convo += `My name is ${user.getName()} and this is my message history: "`
   else if (!commandProperties.isFullContext) {
     convo += user.aboutMe() + '\n';
@@ -378,8 +378,9 @@ async function addPrevMessages(message, commandProperties, user) {
 async function fetchManyPreviousMessages(message, commandProperties, user) {
   console.log('Fetching previous messages');
   const fetchTimes = 40;
-  const messageCount = 100
   let totalCharacters = 0;
+  let maxCharacters = 9000;
+  let notFoundCount = 0;
 
   let collection = new Collection();
   let lastId = null;
@@ -387,34 +388,61 @@ async function fetchManyPreviousMessages(message, commandProperties, user) {
     limit: 100,
   };
 
-  for (let i = 0; i < fetchTimes; i++) {
+  let i = 0;
+  while (i < fetchTimes && totalCharacters <= maxCharacters) {
     if (lastId) options.before = lastId;
 
     let messages = await message.channel.messages.fetch(options);
 
-    if (!messages.last()) break;
+    if (!messages.last()) {
+      console.log('No last message')
+      break;
+    }
 
-      // Skip the first message
+    // Skip the first message
     if (i === 0) messages = messages.filter(msg => msg.id !== message.id);
     
     lastId = messages.last().id;
 
     messages = messages.filter(msg => msg.author.id === user.userid);
 
-    for (const msg of messages.values()) {
+    let messagesChecked = new Collection();
+    let messagesCount = 0;
+    for (const [key, msg] of messages.entries()) {
+      messagesChecked.set(key, msg);
+      messagesCount++;
       totalCharacters += msg.content.length;
+      if (totalCharacters > maxCharacters) {
+        console.log('Max characters reached')
+        break;
+      }
     }
+
+    console.log('Messages to take', messagesCount)
+
     
-    collection = collection.concat(messages);
+    if(messagesCount > 0){
+      console.log('Last', messagesChecked.last().content)
+    }
 
+    // if(messagesCount === 0){
+    //   notFoundCount++
+    //   console.log('Not found', notFoundCount)
+    //   if(notFoundCount === 10) {
+    //     break
+    //   }
+    // }
+    // else {
+    //   notFoundCount = 0;
+    //   console.log('Last', messagesChecked.last().content)
+    // }
+    
     console.log('Total characters', totalCharacters)
+    console.log('i', i)
 
-    if(totalCharacters >= 15000) break;
-
-    //console.log('Last message', messages.last().content)
+    collection = collection.concat(messagesChecked);
+    i++
   }
-
-  collection = collection.first(messageCount);
 
   return collection.reverse();
 }
