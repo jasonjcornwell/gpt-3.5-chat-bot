@@ -174,7 +174,7 @@ function getCommandProperties(message) {
     isMew: message.content.toLowerCase().startsWith('//mew'),
     isHicks: false,
     isExtraContext: message.content.startsWith('//extra'),
-    kataronicsRequested: message.content.toLowerCase().includes('kataronics'),
+    kataronicsRequested: message.content.toLowerCase().includes('kataronic'),
     callMe: message.content.toLowerCase().startsWith('//callme'),
     bio: message.content.toLowerCase().startsWith('//aboutme'),
     isFullContext: false,
