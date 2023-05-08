@@ -1,8 +1,9 @@
-require('dotenv/config');
-var Prompts = require('./prompts.js');
-const User = require('./user.js');
-const { Client, IntentsBitField, Collection } = require('discord.js');
-const { Configuration, OpenAIApi } = require('openai');
+import dotenv from 'dotenv';
+dotenv.config();
+import Prompts from './prompts.js';
+import User from './user.js';
+import { Client, IntentsBitField, Collection } from 'discord.js';
+import { Configuration, OpenAIApi } from 'openai';
 
 /* 
 todo
@@ -101,7 +102,6 @@ async function startBot(client) {
 
     messageToFairy = `This is the new message you should reply to from ${user.getName()}: "${messageToFairy}"`;
     console.log('New message', messageToFairy);
-
 
     conversationLog.push({
       role: 'user',
@@ -288,7 +288,7 @@ function getPrompt(channelId, commandProperties) {
   } else if (commandProperties.isHistory) {
     prompt = Prompts.getPromptHistory();
     promptName = 'HISTORY';
-  }else if (channelId === ChannelType.PROD) {
+  } else if (channelId === ChannelType.PROD) {
     prompt = Prompts.getPromptProd();
     promptName = 'PROD';
   } else if (channelId === ChannelType.DEV) {
@@ -401,7 +401,7 @@ async function fetchManyPreviousMessages(message, commandProperties, user) {
 
     // Skip the first message
     if (i === 0) messages = messages.filter(msg => msg.id !== message.id);
-    
+
     lastId = messages.last().id;
 
     messages = messages.filter(msg => msg.author.id === user.userid);
@@ -420,8 +420,8 @@ async function fetchManyPreviousMessages(message, commandProperties, user) {
 
     console.log('Messages to take', messagesCount)
 
-    
-    if(messagesCount > 0){
+
+    if (messagesCount > 0) {
       console.log('Last', messagesChecked.last().content)
     }
 
@@ -436,7 +436,7 @@ async function fetchManyPreviousMessages(message, commandProperties, user) {
     //   notFoundCount = 0;
     //   console.log('Last', messagesChecked.last().content)
     // }
-    
+
     console.log('Total characters', totalCharacters)
     console.log('i', i)
 

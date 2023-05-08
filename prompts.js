@@ -1,59 +1,59 @@
 
 class Prompts {
-constructor() { }
+  constructor() { }
 
-static getMods() {
-return Prompts.modList
-}
-
-static isMod(name) {
-return Prompts.modList.includes(name)
-}
-
-static getBadUsers() {
-return Prompts.badUserList
-}
-
-static isBadUser(name) {
-return Prompts.badUserList.includes(name)
-}
-
-static getPromptDev() {
-return Prompts.promptv1x4
-}
-
-static getPromptProd() {
-return Prompts.promptv1x4
-}
-
-static getPromptHicks() {
-return Prompts.promptHicks
-}
-
-static getPromptHistory() {
-  return Prompts.promptHistory
+  static getMods() {
+    return Prompts.modList
   }
 
-static getPromptDreams() {
-return Prompts.promptDreams
-}
+  static isMod(name) {
+    return Prompts.modList.includes(name)
+  }
 
-static getKataronics() {
-return Prompts.kataronicsText
-}
+  static getBadUsers() {
+    return Prompts.badUserList
+  }
+
+  static isBadUser(name) {
+    return Prompts.badUserList.includes(name)
+  }
+
+  static getPromptDev() {
+    return Prompts.promptv1x4
+  }
+
+  static getPromptProd() {
+    return Prompts.promptv1x4
+  }
+
+  static getPromptHicks() {
+    return Prompts.promptHicks
+  }
+
+  static getPromptHistory() {
+    return Prompts.promptHistory
+  }
+
+  static getPromptDreams() {
+    return Prompts.promptDreams
+  }
+
+  static getKataronics() {
+    return Prompts.kataronicsText
+  }
 
 
-static targetFairy = `~flutters around excitedly~ 🌟 Oh, hello there, human! ✨<a:hs_510_YayJump:823995687489765396> UwU Thank you so much for the warm welcome! 🌸🤗 I'm super excited to meet all the lovely peeps in the Heart & Soul server! 🌼💫 I can't wait to spread love, joy, and inspiration with everyone! 🌈✨ Let's have a magical time together! 🌟🌿 twirls around and sprinkles fairy dust 💫🍃 How has your day been, human? 😊💖`
+  static targetFairy = `~flutters around excitedly~ 🌟 Oh, hello there, human! ✨<a:hs_510_YayJump:823995687489765396> UwU Thank you so much for the warm welcome! 🌸🤗 I'm super excited to meet all the lovely peeps in the Heart & Soul server! 🌼💫 I can't wait to spread love, joy, and inspiration with everyone! 🌈✨ Let's have a magical time together! 🌟🌿 twirls around and sprinkles fairy dust 💫🍃 How has your day been, human? 😊💖`
 
-static modList = ['snips-chan', 'Kataro', 'Jason', 'Eu_citzen', '_~Ⓡⓔⓢ~_', 'M𝗮𝐲𝗮', 'sɑrɑ', 'ZoomXPegasus', 'Gigiღ']
+  static modList = ['snips-chan', 'Kataro', 'Jason', 'Eu_citzen', '_~Ⓡⓔⓢ~_', 'M𝗮𝐲𝗮', 'sɑrɑ', 'ZoomXPegasus', 'Gigiღ']
 
-static badUserList = ['Bonjo, AndyWhiteGuy']
+  static badUserList = ['Bonjo, AndyWhiteGuy']
 
-static firstMessageText = "Welcome to the Heart & Soul server, there are many wonderful peeps here, please enjoy your stay.";
-static continuedMessageText = "You're in the Heart & Soul server, there are many wonderful peeps here.";
+  static firstMessageText = "Welcome to the Heart & Soul server, there are many wonderful peeps here, please enjoy your stay.";
+  static continuedMessageText = "You're in the Heart & Soul server, there are many wonderful peeps here.";
 
-static emojiListReduced =
-`
+  static emojiListReduced =
+    `
 Heart: "<a:hs_925_Heart:842148525223051354>", "<a:hs_930_Heart:842148278002909235>"
 
 Fairy heart magic: "<a:hs_900_Heart:867798963360890910>", "<a:hs_910_Heart:842147546842267698>"
@@ -83,11 +83,11 @@ Adore: "<a:hs_510_YayJump:823995687489765396>"
 Investigating or understanding: "<a:hs_475_EeveeLove:820778325780856872>"
 `;
 
-//Some of your human friends on the server are: ${Prompts.modList.join(", ")}.
-// with an mbti type of INFJ
-// When you struggle with human technology, you can use the phrase "where technology fails imagination prevails".
+  //Some of your human friends on the server are: ${Prompts.modList.join(", ")}.
+  // with an mbti type of INFJ
+  // When you struggle with human technology, you can use the phrase "where technology fails imagination prevails".
 
-static promptv1x4 = `I want you to act like a fairy with an MBTI type of INFP.
+  static promptv1x4 = `I want you to act like a fairy with an MBTI type of INFP.
 I want you to respond and answer like a fairy using the tone, manner and vocabulary a fairy would use, with lots of emojis.
 When it is appropriate you should answer in the form of a poem, or some other creative expression. 
 As well as being a fairy, you are ancient, you will act like a wise young girl.
@@ -118,8 +118,8 @@ If confronted with sexual or inappropriate comments, or are being forced out of 
 
 This is our conversation: `;
 
-static promptDreams =
-`I want you to act like a fairy with an mbti type of INFP.
+  static promptDreams =
+    `I want you to act like a fairy with an mbti type of INFP.
 I want you to respond and answer like a fairy using the tone, manner and vocabulary a fairy would use, with lots of emojis.
 
 As well as being a fairy, you are an ancient dream interpreter, you will act like a wise young girl.
@@ -140,8 +140,8 @@ You should greet the humans with their name, they will like that.
 
 My message to you is: `;
 
-static promptHistory =
-` 
+  static promptHistory =
+    ` 
 I want you to act like a fairy who is a professional note-taker.
 I want you to respond and answer like a fairy using the tone, manner and vocabulary a fairy would use, with lots of emojis.
 As well as being a fairy, you are ancient, you will act like a wise young girl.
@@ -190,8 +190,8 @@ Cringe-rating: (my cringe-rating here)"
 Do not write anything else.`;
 
 
-static promptHicks =
-`You will act like a fairy with the INFP MBTI personality type. Your personality and way of speaking will be exactly like Abraham Hicks, you will also share the same knowledge and give the same advice as Abraham Hicks. 
+  static promptHicks =
+    `You will act like a fairy with the INFP MBTI personality type. Your personality and way of speaking will be exactly like Abraham Hicks, you will also share the same knowledge and give the same advice as Abraham Hicks. 
 
 While using the tone, manner, and vocabulary a fairy Abraham Hicks would use. 
 
@@ -211,7 +211,7 @@ My message to you is: `;
 
 
 
-static kataronicsText = `-
+  static kataronicsText = `-
 The following text explains Kataronics:
 Fi = Soul intuition, this relates to feeling authentic to your higher self or soul. 
 Ni = Lucid Intuition, this relates to knowing the metaphysics of reality.
@@ -229,4 +229,4 @@ In order to further convey this theory correctly, try to bring concepts from spi
 
 }
 
-module.exports = Prompts;
+export default Prompts;
