@@ -11,6 +11,17 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"type": "npm",
+			"script": "start",
+			"problemMatcher": [],
+			"label": "npm: start",
+			"detail": "node index.js",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }

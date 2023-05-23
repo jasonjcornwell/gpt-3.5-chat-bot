@@ -4,6 +4,7 @@ import Prompts from './prompts.js';
 import User from './user.js';
 import { Client, IntentsBitField, Collection } from 'discord.js';
 import { Configuration, OpenAIApi } from 'openai';
+import moment from 'moment';
 
 /* 
 todo
@@ -92,7 +93,7 @@ async function startBot(client) {
       // }
 
       const prevConvo = await addPrevMessages(message, commandProperties, user);
-      console.log('Prev convo', prevConvo);
+      console.log(prevConvo);
       conversationLog.push({
         role: 'system',
         content: prevConvo,
@@ -100,8 +101,8 @@ async function startBot(client) {
 
     }
 
-    messageToFairy = `This is the new message you should reply to from ${user.getName()}: "${messageToFairy}"`;
-    console.log('New message', messageToFairy);
+    messageToFairy = `This is my new message you should reply to: "${messageToFairy}"`;
+    console.log(messageToFairy);
 
     conversationLog.push({
       role: 'user',
@@ -349,13 +350,16 @@ async function addPrevMessages(message, commandProperties, user) {
   else if (commandProperties.isHistory) convo += `My name is ${user.getName()} and this is my message history: "`
   else if (!commandProperties.isFullContext) {
     convo += user.aboutMe() + '\n';
-    if (hasPrevConversation) convo += 'This is the context of our conversation, do not respond to it: '
+    if (hasPrevConversation) convo += '\nThese are my last messages to you (only for context do not respond to them): \n"'
   }
 
+  let firstMsg = true;
+  let lastMsg = null;
   prevMessages.forEach((msg) => {
     if (msg.author.bot) return;
-    convo += '\n';
-
+    if(firstMsg) firstMsg = false;
+    else convo += '\n';
+    
     if (commandProperties.isFullContext) {
       const thisUser = {
         username: msg.member.nickname ?? msg.author.username,
@@ -365,8 +369,16 @@ async function addPrevMessages(message, commandProperties, user) {
       msg.content = thisUser.username + ': ' + msg.content;
     }
 
-    convo += msg.content + '.';
+    if(msg.content.startsWith('fairy')) lastMsg = msg;
+    
+    convo += msg.content;
   });
+
+  if(lastMsg) {
+    const lastMsgTime = lastMsg.createdAt;
+    const timeFromNow = moment(lastMsgTime).fromNow();
+    convo += "\" \n\nOur last message was " + timeFromNow + ", if it's recent then we are probably in the middle of a conversation already.";
+  }
 
   if (commandProperties.isHistory) convo += `"`
 
@@ -377,7 +389,7 @@ async function addPrevMessages(message, commandProperties, user) {
 
 async function fetchManyPreviousMessages(message, commandProperties, user) {
   console.log('Fetching previous messages');
-  const fetchTimes = 40;
+  const fetchTimes = 400; //40
   let totalCharacters = 0;
   let maxCharacters = 9000;
   let notFoundCount = 0;

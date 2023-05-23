@@ -65,17 +65,17 @@ class User {
   }
 
   aboutMe() {
-    let aboutMe = `Hi my name is ${this.getName()}`
+    let aboutMe = `My name is ${this.getName()}`
     if (this.mbti) aboutMe += `. My MBTI type is ${this.mbti}`
     if (this.age) aboutMe += `. I am ${this.age} years old`
-    if (this.gender) aboutMe += `. I am ${this.gender}`
+    if (this.gender) aboutMe += `. I'm ${this.gender}`
     if (this.bio) aboutMe += `. ${this.bio}`
     return aboutMe + '.';
   }
 
   getName() {
     // Return the username if it exists, otherwise return the nickname
-    return this.username || this.nickname;
+    return this.callMe || this.username || this.nickname;
   }
 }
 
