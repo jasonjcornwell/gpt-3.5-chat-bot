@@ -45,9 +45,11 @@ async function startBot(client) {
     const channelType = getChannelType(channelId)
     const skipReason = shouldSkipMessage(message, channelType);
     if (skipReason) {
-      console.log(`SKIPPED: ${skipReason}`);
+      //console.log(`SKIPPED: ${skipReason}`);
       return;
     }
+
+    console.log(`----------------------------------------------------------`);
 
     const commandProperties = getCommandProperties(message);
 
@@ -101,7 +103,8 @@ async function startBot(client) {
 
     }
 
-    messageToFairy = `This is my new message you should reply to: "${messageToFairy}"`;
+    messageToFairy = `${user.getName() + ': This is my new message for you to reply to: ' + messageToFairy}`;
+
     console.log(messageToFairy);
 
     conversationLog.push({
@@ -208,16 +211,13 @@ function logValues(commandProperties, channelType, promptName) {
 }
 
 function startShowTypingInterval(channel) {
-  console.log('Send Typing');
   channel.sendTyping();
   return setInterval(() => {
-    console.log('Send Typing');
     channel.sendTyping();
   }, 10000);
 }
 
 function clearTypingInterval(interval) {
-  console.log('Clear Typing');
   clearInterval(interval);
 }
 
@@ -368,6 +368,12 @@ async function addPrevMessages(message, commandProperties, user) {
       };
       msg.content = thisUser.username + ': ' + msg.content;
     }
+    else if(commandProperties.isHistory){
+      //msg.content = msg.content;
+    }
+    else{
+      msg.content = user.getName() + ': ' + msg.content;
+    }
 
     if(msg.content.startsWith('fairy')) lastMsg = msg;
     
@@ -377,7 +383,7 @@ async function addPrevMessages(message, commandProperties, user) {
   if(lastMsg) {
     const lastMsgTime = lastMsg.createdAt;
     const timeFromNow = moment(lastMsgTime).fromNow();
-    convo += "\" \n\nOur last message was " + timeFromNow + ", if it's recent then we are probably in the middle of a conversation already.";
+    //convo += "\" \n\nOur last message was " + timeFromNow + ", if it's recent then we are probably in the middle of a conversation already.";
   }
 
   if (commandProperties.isHistory) convo += `"`
@@ -488,7 +494,8 @@ function shutdownBot(client) {
 }
 
 async function sendMessage(message, response) {
-  console.log('Sending FaiRY response: ' + response);
+  //console.log('Sending FaiRY response: ' + response);
+  console.log('Sending FaiRY response');
   try {
     await message.channel.messages.fetch(message.id);
     try {

@@ -59,7 +59,6 @@ class User {
       if (err) {
         console.log('Error writing file', err);
       } else {
-        console.log('Successfully wrote file');
       }
     });
   }
@@ -75,7 +74,7 @@ class User {
 
   getName() {
     // Return the username if it exists, otherwise return the nickname
-    return this.callMe || this.username || this.nickname;
+    return this.callMe || this.nickname || this.username;
   }
 }
 
