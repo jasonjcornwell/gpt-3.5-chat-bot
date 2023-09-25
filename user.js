@@ -49,6 +49,7 @@ class User {
   update(newProperties) {
     // Merge the new properties with the existing properties
     Object.assign(this, newProperties);
+    return this;
   }
 
   save() {

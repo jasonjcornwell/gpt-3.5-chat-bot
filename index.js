@@ -32,6 +32,7 @@ const ChannelType = Object.freeze({
   PROD: process.env.CHANNEL_ID_PROD,
   DREAMS: process.env.CHANNEL_ID_DREAMS,
   JOCHI: process.env.CHANNEL_ID_JOCHI,
+  MOON: process.env.CHANNEL_ID_MOON,
 });
 
 async function startBot(client) {
@@ -61,7 +62,7 @@ async function startBot(client) {
     let user = await User.getFromId(message.author.id);
 
     user.update({
-      username: message.author.username,
+      username: message.author.displayName,
       nickname: message.member.nickname,
     });
 
@@ -296,8 +297,11 @@ function getPrompt(channelId, commandProperties) {
     prompt = Prompts.getPromptDev();
     promptName = 'DEV';
   } else if (channelId === ChannelType.JOCHI) {
-    prompt = Prompts.getPromptProd();
-    promptName = 'DEV';
+    prompt = Prompts.getPromptJochi();
+    promptName = 'JOCHI';
+  } else if (channelId === ChannelType.MOON) {
+    prompt = Prompts.getPromptMoon();
+    promptName = 'MOON';
   } else {
     throw new Error('Unknown channel');
   }
@@ -362,7 +366,7 @@ async function addPrevMessages(message, commandProperties, user) {
     
     if (commandProperties.isFullContext) {
       const thisUser = {
-        username: msg.member.nickname ?? msg.author.username,
+        username: msg.member.nickname ?? msg.author.displayName,
         userid: msg.author.id,
         //isOriginalAuthor: msg.author.id === user.userid,
       };
