@@ -59,6 +59,10 @@ async function startBot(client) {
       return;
     }
 
+    console.log('USERNAME: ', message.author.username);
+    console.log('COMMAND PROPERTIES: ', commandProperties);
+    
+
     let user = await User.getFromId(message.author.id);
 
     user.update({
@@ -176,6 +180,7 @@ function getChannelType(channelId) {
 function getCommandProperties(message) {
   const commandProperties = {
     isMod: Prompts.isMod(message.author.username),
+    isBadUser: Prompts.isBadUser(message.author.username),
     isMew: message.content.toLowerCase().startsWith('//mew'),
     isHicks: false,
     isExtraContext: message.content.startsWith('//extra'),
@@ -350,12 +355,16 @@ async function addPrevMessages(message, commandProperties, user) {
   const hasPrevConversation = prevMessagesCount > 0
   let convo = ''
 
-  if (commandProperties.kataronicsRequested) convo += Prompts.getKataronics();
+  if (commandProperties.isBadUser) convo += Prompts.getBadUserWarning();
+  else if (commandProperties.kataronicsRequested) convo += Prompts.getKataronics();
   else if (commandProperties.isHistory) convo += `My name is ${user.getName()} and this is my message history: "`
   else if (!commandProperties.isFullContext) {
     convo += user.aboutMe() + '\n';
     if (hasPrevConversation) convo += '\nThese are my last messages to you (only for context do not respond to them): \n"'
   }
+
+  
+  console.log('Convo TEST: ', convo)
 
   let firstMsg = true;
   let lastMsg = null;
