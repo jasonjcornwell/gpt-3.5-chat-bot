@@ -1,10 +1,10 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 dotenv.config();
-import Prompts from './prompts.js';
-import User from './user.js';
-import { Client, IntentsBitField, Collection } from 'discord.js';
-import { Configuration, OpenAIApi } from 'openai';
-import moment from 'moment';
+const Prompts = require('./prompts.js');
+const User = require('./user.js');
+const { Client, IntentsBitField, Collection } = require('discord.js');
+const OpenAIApi = require('openai');
+const moment = require('moment');
 
 /* 
 todo
@@ -36,9 +36,9 @@ const ChannelType = Object.freeze({
 });
 
 async function startBot(client) {
-  const configuration = new Configuration({
+  const configuration = {
     apiKey: process.env.API_KEY,
-  });
+  };
   const openai = new OpenAIApi(configuration);
 
   client.on('messageCreate', async (message) => {
@@ -120,7 +120,7 @@ async function startBot(client) {
     console.log('Generating response');
 
     try {
-      const result = await openai.createChatCompletion({
+      const result = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: conversationLog,
         max_tokens: 400, // limit token usage
@@ -130,7 +130,7 @@ async function startBot(client) {
           // should send UwU???
         });
 
-      const response = result.data.choices[0].message.content;
+      const response = result.choices[0].message.content;
 
 
       // //gethistory
@@ -165,7 +165,7 @@ function shouldSkipMessage(message, channelType) {
   if (message.author.bot) return 'bot';
   if (!channelType) return 'not channel';
 
-  if (!message.content.toLowerCase().startsWith('fairy') && !message.content.startsWith('//')) return 'not fairy';
+  if (!message.content.toLowerCase().startsWith('fairy') && !message.content.toLowerCase().startsWith('yoda') && !message.content.startsWith('//')) return 'not fairy';
 
   return false; // Return an empty string if there's no reason to skip the message
 }
@@ -183,6 +183,7 @@ function getCommandProperties(message) {
     isBadUser: Prompts.isBadUser(message.author.username),
     isMew: message.content.toLowerCase().startsWith('//mew'),
     isHicks: false,
+    isYoda: message.content.toLowerCase().startsWith('yoda'),
     isExtraContext: message.content.startsWith('//extra'),
     kataronicsRequested: message.content.toLowerCase().includes('kataronic'),
     callMe: message.content.toLowerCase().startsWith('//callme'),
@@ -292,7 +293,10 @@ function getPrompt(channelId, commandProperties) {
   } else if (commandProperties.isHicks) {
     prompt = Prompts.getPromptHicks();
     promptName = 'HICKS';
-  } else if (commandProperties.isHistory) {
+  } else if (commandProperties.isYoda) {
+    prompt = Prompts.getPromptYoda();
+    promptName = 'YODA';
+  }else if (commandProperties.isHistory) {
     prompt = Prompts.getPromptHistory();
     promptName = 'HISTORY';
   } else if (channelId === ChannelType.PROD) {
@@ -388,7 +392,7 @@ async function addPrevMessages(message, commandProperties, user) {
       msg.content = user.getName() + ': ' + msg.content;
     }
 
-    if(msg.content.startsWith('fairy')) lastMsg = msg;
+    if(msg.content.startsWith('fairy') || msg.content.startsWith('yoda')) lastMsg = msg;
     
     convo += msg.content;
   });

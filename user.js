@@ -1,4 +1,4 @@
-import fs from 'fs';
+const fs = require('fs');
 
 class User {
   constructor(data) {
@@ -79,8 +79,7 @@ class User {
   }
 }
 
-export default User;
-
+module.exports = User;
 
 
 
