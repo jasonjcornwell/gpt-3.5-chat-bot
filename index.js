@@ -91,8 +91,11 @@ async function startBot(client) {
     else if (commandProperties.shutdownBot) {
       messageToFairy = 'Fairy say goodbye to the peeps of the server, and say you will be back soon';
     }
+    else if (commandProperties.isHelp) {
+      messageToFairy = "Please tell me what commands I can use with you."
+    }
     else {
-      if (commandProperties.isHistory) messageToFairy = "Please write my notes, bio, MBTI, and cringe-rating, based on the previous messages."
+      if (commandProperties.isHistory) messageToFairy = "Please write my notes, bio, MBTI/Enneagram, cringe-rating, and summary, based on the previous messages."
       else messageToFairy = message.content;
 
       // if (commandProperties.isHistory && user.chatSummary) {
@@ -190,6 +193,7 @@ function getCommandProperties(message) {
     bio: message.content.toLowerCase().startsWith('//aboutme'),
     isFullContext: false,
     isHistory: message.content.startsWith('//gethistory'),
+    isHelp: message.content.startsWith('//help'),
     shouldShutdown: false,
   };
 
@@ -296,9 +300,12 @@ function getPrompt(channelId, commandProperties) {
   } else if (commandProperties.isYoda) {
     prompt = Prompts.getPromptYoda();
     promptName = 'YODA';
-  }else if (commandProperties.isHistory) {
+  } else if (commandProperties.isHistory) {
     prompt = Prompts.getPromptHistory();
     promptName = 'HISTORY';
+  } else if (commandProperties.isHelp) {
+    prompt = Prompts.getPromptHelp();
+    promptName = 'HELP';
   } else if (channelId === ChannelType.PROD) {
     prompt = Prompts.getPromptProd();
     promptName = 'PROD';
