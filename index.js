@@ -33,6 +33,7 @@ const ChannelType = Object.freeze({
   DREAMS: process.env.CHANNEL_ID_DREAMS,
   JOCHI: process.env.CHANNEL_ID_JOCHI,
   MOON: process.env.CHANNEL_ID_MOON,
+  VHOLZAK: process.env.CHANNEL_ID_VHOLZAK,
 });
 
 async function startBot(client) {
@@ -72,14 +73,17 @@ async function startBot(client) {
 
     const showTypingInterval = startShowTypingInterval(message.channel);
 
-    const { prompt, promptName } = getPrompt(channelId, commandProperties);
-    let conversationLog = [{ role: 'system', content: prompt }];
-
-    logValues(commandProperties, channelType, promptName);
-
     user = updateUserFromRoles(user, message)
 
     if (user.userid === '595852717893746738') user.update({ callMe: "robo" });
+
+    const { prompt, promptName } = getPrompt(channelId, commandProperties, user.getName());
+
+    console.log('prompt', prompt);
+
+    logValues(commandProperties, channelType, promptName);
+
+    let conversationLog = [{ role: 'system', content: prompt }];
 
     let messageToFairy = ''
     if (commandProperties.bio) {
@@ -284,7 +288,7 @@ function updateUserFromRoles(user, message) {
   return user;
 }
 
-function getPrompt(channelId, commandProperties) {
+function getPrompt(channelId, commandProperties, username) {
   let prompt = '';
   let promptName = '';
 
@@ -307,10 +311,10 @@ function getPrompt(channelId, commandProperties) {
     prompt = Prompts.getPromptHelp();
     promptName = 'HELP';
   } else if (channelId === ChannelType.PROD) {
-    prompt = Prompts.getPromptProd();
+    prompt = Prompts.getPromptProd(username);
     promptName = 'PROD';
   } else if (channelId === ChannelType.DEV) {
-    prompt = Prompts.getPromptDev();
+    prompt = Prompts.getPromptDev(username);
     promptName = 'DEV';
   } else if (channelId === ChannelType.JOCHI) {
     prompt = Prompts.getPromptJochi();
@@ -318,6 +322,9 @@ function getPrompt(channelId, commandProperties) {
   } else if (channelId === ChannelType.MOON) {
     prompt = Prompts.getPromptMoon();
     promptName = 'MOON';
+  } else if (channelId === ChannelType.VHOLZAK) {
+    prompt = Prompts.getPromptProd(username);
+    promptName = 'VHOLZAK';
   } else {
     throw new Error('Unknown channel');
   }
